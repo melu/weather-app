@@ -1,0 +1,44 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/google-map/google-map.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html" />
+
+<dom-module id="my-new-view">
+
+	<template>
+		<style>
+			:host{
+				display:block;
+				padding: 16px;
+			}
+
+			google-map {
+			    height: 600px;
+			}
+		</style>
+		<h1>New View</h1>
+		<iron-ajax
+			fitToMarkers
+			auto
+			url="/api/marks"
+			params=''
+			handle-as="json"
+			last-response="{{ajaxResponse}}"
+			></iron-ajax>
+
+
+		<google-map latitude="43.4722475" longitude="-3.8199358" api-key="AIzaSyAyEt0QlYNwvp5FTYGF6mZv6b6ANkanbn4">
+			<template is="dom-repeat" items="[[ajaxResponse]]">
+				<google-map-marker latitude="[[item.ayto:latitude]]" longitude="[[item.ayto:longitude]]"
+					draggable="true" title="[[item.ayto:temperature]]">
+					<p>prueba: [[item.uri]]</p>	
+				</google-map-marker>
+			</template>
+		</google-map>
+	</template>
+
+	<script>
+		Polymer({
+			is: "my-new-view"
+		})
+	</script>
+</dom-module>
