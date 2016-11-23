@@ -1,0 +1,85 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/google-map/google-map.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html" />
+
+<dom-module id="my-heatmap-view">
+
+	<template>
+		<style>
+			:host{
+				display:block;
+				padding: 16px;
+			}
+
+			google-map {
+			    height: 600px;
+			}
+		</style>
+		
+		<iron-ajax
+			id="ajax"
+			fitToMarkers
+			auto
+			url="/api/marks"
+			params=''
+			handle-as="json"
+			on-response="onResponse"
+			last-response="{{ajaxResponse}}"
+			></iron-ajax>
+
+
+		<google-map id="map" zoom="15" map={{map}} latitude="43.4722475" longitude="-3.8199358"
+		 api-key="AIzaSyAyEt0QlYNwvp5FTYGF6mZv6b6ANkanbn4" libraries="visualization" >
+			<!--
+			<template is="dom-repeat" items="[[ajaxResponse]]">
+				<google-map-marker latitude="[[item.ayto:latitude]]" longitude="[[item.ayto:longitude]]"
+					draggable="true" title="[[item.ayto:temperature]]">
+					<p>Temperature: [[item.ayto:temperature]]</p>	
+				</google-map-marker>
+			</template>
+			-->
+		</google-map>
+	</template>
+
+	<script>
+		Polymer({
+			is: "my-heatmap-view",
+			onResponse: function(e){
+				var map = this.$.map.map;
+
+				//map.mapUrl += "&libraries=visualization;
+				
+				console.log(map);
+				console.log(map.mapUrl);
+				//this.getPoints();
+
+				heatmap = new google.maps.visualization.HeatmapLayer({
+					data: this.getPoints(),
+					map: map,
+					radius:20
+				});
+			},
+			getPoints: function(){
+				var points = [];
+				var ajax = this.$.ajax;
+				var items = ajax.lastResponse;
+
+				for(var i = 0; i < items.length ; i++){
+					var item = items[i];
+					var latlng = new google.maps.LatLng(item["ayto:latitude"], item["ayto:longitude"]);
+					var temperature = item["ayto:temperature"];
+					//var point = points.push(new google.maps.visualization.WeightedLocation(latlng, temperature));
+					//var point = { locatio:latlng, yield:temperature };
+					//points.push(point);
+					if(temperature<30){
+						for(var x = 0; x < temperature; x++){
+							points.push(latlng);
+						}
+					}
+				}
+
+				return points;
+			}
+		})
+	</script>
+</dom-module>
